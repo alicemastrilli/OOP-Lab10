@@ -66,7 +66,7 @@ public class AnotherConcurrentGUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 agent.up = 1; 
-                agent.run();
+               
                 
             }
         });
@@ -76,7 +76,7 @@ public class AnotherConcurrentGUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 agent.up = -1; 
-                agent.run();
+                
                 
             }
         });
