@@ -1,97 +1,98 @@
 package it.unibo.oop.lab.reactivegui02;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+
+import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
-public class ConcurrentGUI extends JFrame{
 
-    
-    /**
-     * 
-     */
-    private static final double WIDTH_PERC = 0.3;
-    private static final double HEIGHT_PERC = 0.3;
+
+
+public class ConcurrentGUI {
     private static final long serialVersionUID = 1L;
-    private final JLabel testo = new JLabel("0");
-    private final JButton up = new JButton("up");
-    private final JButton down = new JButton("down");
+    private static final double WIDTH_PERC = 0.2;
+    private static final double HEIGHT_PERC = 0.1;
+    private final JLabel display = new JLabel("0");
     private final JButton stop = new JButton("stop");
+    private final JButton down = new JButton("down");
+    private final JButton up = new JButton("up");
+    private int su=1;
+    private boolean run = true;
+    
+    private JFrame frame = new JFrame();
     public ConcurrentGUI() {
         super();
         final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setSize((int) (screenSize.getWidth()*WIDTH_PERC),(int) (screenSize.getHeight()*HEIGHT_PERC));
-        
+        frame.setSize((int) (screenSize.getWidth() * WIDTH_PERC), (int) (screenSize.getHeight() * HEIGHT_PERC));
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         final JPanel panel = new JPanel();
-         this.getContentPane().add(panel);
-        panel.add(testo);
+        panel.add(display);
         panel.add(up);
         panel.add(down);
         panel.add(stop);
+        frame.getContentPane().add(panel);
+        frame.setVisible(true);
         final Agent agent = new Agent();
         new Thread(agent).start();
-        stop.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                agent.stopCounting();
-            }
-        });
         up.addActionListener(new ActionListener() {
+            
             @Override
-            public void actionPerformed(final ActionEvent e) {
-                agent.su = 1;
+            public void actionPerformed(ActionEvent arg0) {
+                ConcurrentGUI.this.su = 1;
+                
             }
         });
         down.addActionListener(new ActionListener() {
+           
             @Override
-            public void actionPerformed(final ActionEvent e) {
-                agent.su = 0;
+            public void actionPerformed(ActionEvent arg0) {
+                // TODO Auto-generated method stub
+                ConcurrentGUI.this.su = 0;
             }
         });
-         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-         this.setVisible(true);
+        stop.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                ConcurrentGUI.this.run=false;
+                up.setEnabled(false);
+                down.setEnabled(false);
+                stop.setEnabled(false);
+                
+            }
+        });
+        
+        // TODO Auto-generated constructor stub
     }
-    final class Agent implements Runnable {
-        private int counter;
-        private boolean stop;
-        private int su = 1;
-
-    @Override
-    public void run() {
-        while (!this.stop) {
-            try {
-                if (su == 1) {
-                    SwingUtilities.invokeAndWait(() -> testo.setText(Integer.toString(Agent.this.counter)));
-                    this.counter++;
-                    Thread.sleep(100);
+    
+    private class Agent implements  Runnable {
+        int counter = 0;
+        
+        public void run() {
+            while(ConcurrentGUI.this.run) {
+                ConcurrentGUI.this.display.setText(Integer.toString(counter));
+                if(su == 1) {
+                    counter++;
                 }
                 else {
-                    SwingUtilities.invokeAndWait(() -> testo.setText(Integer.toString(Agent.this.counter)));
-                    this.counter--;
-                    Thread.sleep(100);
+                    counter--;
                 }
-            } catch (InvocationTargetException | InterruptedException e) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                    e.printStackTrace();
+                }
             }
         }
-        // TODO Auto-generated method stub
-    }
-
-    public void stopCounting() {
-        this.stop = true;
-        ConcurrentGUI.this.down.setEnabled(false);
-        ConcurrentGUI.this.up.setEnabled(false);
-        ConcurrentGUI.this.stop.setEnabled(false);
-    }
-    }
-    }
+    } 
+}
